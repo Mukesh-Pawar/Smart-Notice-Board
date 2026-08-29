@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Admin Dashboard</h1><p>Manage department notices and keep the board current.</p></div><a class="btn btn-primary" href="{% url 'notices:create' %}"><i class="bi bi-plus-lg"></i> New Notice</a></div>
+<div class="row g-3 mb-4">
+  <div class="col-12 col-md-4"><div class="stat-card"><div class="stat-icon blue"><i class="bi bi-megaphone"></i></div><div><span>Total Notices</span><strong>{{ total_notices }}</strong></div></div></div>
+  <div class="col-12 col-md-4"><div class="stat-card"><div class="stat-icon green"><i class="bi bi-broadcast"></i></div><div><span>Active Notices</span><strong>{{ active_notices }}</strong></div></div></div>
+  <div class="col-12 col-md-4"><div class="stat-card"><div class="stat-icon gray"><i class="bi bi-archive"></i></div><div><span>Expired Notices</span><strong>{{ expired_notices }}</strong></div></div></div>
+</div>
+<div class="row g-4">
+  <div class="col-lg-7"><div class="panel-card h-100"><div class="panel-header"><h3>Current Notice</h3><a href="{% url 'notices:current' %}">View board</a></div>{% if current_notice %}<div class="current-notice"><span class="priority-badge {{ current_notice.priority|lower }}">{{ current_notice.get_priority_display }}</span><h2>{{ current_notice.title }}</h2><p>{{ current_notice.message|linebreaksbr }}</p><div class="notice-meta"><span><i class="bi bi-clock"></i> Until {{ current_notice.expiry_time|date:'d M Y, h:i A' }}</span><span><i class="bi bi-person"></i> {{ current_notice.created_by.full_name }}</span></div></div>{% else %}<div class="empty-state"><i class="bi bi-megaphone"></i><h4>No active notice</h4><p>Create or schedule a notice to display on the board.</p><a class="btn btn-primary" href="{% url 'notices:create' %}">Create Notice</a></div>{% endif %}</div></div>
+  <div class="col-lg-5"><div class="panel-card h-100"><div class="panel-header"><h3>Recent Notices</h3><a href="{% url 'notices:history' %}">View all</a></div>{% for notice in recent_notices %}<a class="recent-row" href="{% url 'notices:detail' notice.pk %}"><div><strong>{{ notice.title }}</strong><small>{{ notice.created_at|date:'d M Y, h:i A' }}</small></div><span class="status-badge {{ notice.status|lower }}">{{ notice.get_status_display }}</span></a>{% empty %}<div class="empty-state small"><p>No notices yet.</p></div>{% endfor %}</div></div>
+</div>
+{% endblock %}

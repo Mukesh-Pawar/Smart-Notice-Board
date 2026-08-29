@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Admin Registration | Smart Notice Board{% endblock %}
+{% block auth_content %}
+<div class="auth-page"><div class="auth-card wide">
+  <div class="auth-brand compact"><div class="brand-mark"><i class="bi bi-person-plus-fill"></i></div><h1>Admin Registration</h1><p>Request department administrator access</p></div>
+  <form method="post" novalidate>{% csrf_token %}
+    {% for error in form.non_field_errors %}<div class="alert alert-danger">{{ error }}</div>{% endfor %}
+    <div class="row g-3">
+      {% for field in form %}<div class="col-md-{% if field.name == 'full_name' or field.name == 'email' %}6{% else %}12{% endif %}">
+        <label class="form-label">{{ field.label }}</label>{{ field }}{% for e in field.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>{% endfor %}
+    </div>
+    <button class="btn btn-primary w-100 mt-4 py-2" type="submit">Submit Registration Request</button>
+  </form>
+  <p class="text-center mt-4 mb-0">Already registered? <a href="{% url 'accounts:login' %}">Back to Login</a></p>
+</div></div>
+{% endblock %}
