@@ -1,532 +1,455 @@
-# GSM-Based Smart Notice Board with Web-Based Department Notice Management System
+Smart Notice Board
 
-A responsive Django + Django REST Framework application for managing department notices and exposing the current notice to an embedded GSM/LED notice-board controller.
+GSM-Based Smart Notice Board with Web-Based Department Notice Management System
 
-## 1. Project Description
+Smart Notice Board is a web-based department notice management system
+developed to digitize the traditional notice board process.
 
-The system provides a secure web dashboard for HOD/Super Admins and approved Department Admins. New administrator registrations enter a **PENDING** state and cannot access the dashboard until an HOD approves them. Notices support priority, scheduling, duration-based expiry, history, cancellation, redisplay and a secure API for future embedded hardware integration.
+The system provides a centralized platform where the Head of Department
+(HOD) and authorized Department Administrators can manage department
+notices, user accounts, profile information, password change requests,
+and other administrative activities.
 
-## 2. Features
+The project is designed with future IoT integration in mind. An
+ESP32-based controller, SIM800L GSM module, and P10 LED display panels
+can be integrated with the Django server to create a complete digital
+smart notice board.
 
-- Custom email-based Django user model
-- HOD / Super Admin and Department Admin roles
-- Pending → Approved / Rejected admin workflow
-- Enable / disable approved admins
-- Secure password hashing and validation
-- Session-based web authentication
-- Django password-reset flow with configurable email backend
-- Responsive Bootstrap 5 UI
-- Notice priority: Normal, Important, Emergency
-- Notice lifecycle: Draft, Scheduled, Active, Expired, Cancelled
-- Duration presets: 1h, 6h, 12h, 24h, 2d, 7d, Custom
-- Server-side expiry calculation
-- Current notice selection for the physical board
-- Search, priority/status/date filtering and pagination
-- Notice activity log
-- Django admin configuration
-- DRF token-authenticated API
-- Hardware-independent GSM service abstraction
-- Automated tests for core authentication, authorization, notice and API flows
-- Environment-based secrets and deployment settings
-- Friendly 400/403/404/500 error pages
+------------------------------------------------------------------------
 
-## 3. Technology Stack
+Project Highlights
 
-- Python 3
-- Django 5.2
-- Django REST Framework 3.16
-- SQLite by default
-- Bootstrap 5
-- HTML5 / CSS3 / JavaScript
-- Fetch API can be used by future hardware/admin clients
-- Token Authentication for embedded/API clients
-- `python-dotenv` for environment configuration
+-   Web-based department notice management
+-   Separate HOD and Admin roles
+-   HOD as Super Admin
+-   Admin registration approval system
+-   Admin enable/disable management
+-   Admin deletion by HOD
+-   Password change request and HOD approval
+-   Profile management for HOD and Admin
+-   Optional profile photo support
+-   Direct profile photo change/remove
+-   HOD approval for important Admin profile changes
+-   Notice creation and management
+-   Current and historical notice viewing
+-   Notice status management
+-   LAN-based deployment support
+-   Waitress WSGI server support
+-   Prepared architecture for ESP32 and GSM integration
+-   Prepared architecture for P10 LED display integration
 
-## 4. Architecture
+------------------------------------------------------------------------
 
-```text
-Browser (HOD/Admin)
-        |
-        v
-Bootstrap + HTML/CSS/JS
-        |
-        v
-Django Views / Forms
-        |
-        +---- Accounts + RBAC
-        |
-        +---- Notice Business Services
-        |         |
-        |         +---- Notice / NoticeLog
-        |         |
-        |         +---- GSM Service Abstraction
-        |
-        v
-SQLite (local) / PostgreSQL or MySQL (future)
+User Roles
 
-Embedded path:
+HOD / Super Admin
 
-Web Application
-      |
-      v
-Django REST API
-      |
-      v
-GSM / SMS Communication Layer
-      |
-      v
-SIM800L / SIM900 / compatible modem
-      |
-      v
-Microcontroller
-      |
-      v
-P10 LED Display
-```
+The HOD has complete administrative control over the system.
 
-Business logic for notice scheduling is kept in `notices/services.py`. GSM logic is isolated in `services/gsm_service.py`, so a serial modem adapter can be added without putting hardware code in Django views.
+Main capabilities:
 
-## 5. Folder Structure
+-   Login securely using email and password
+-   View the HOD dashboard
+-   Manage department notices
+-   View notice statistics
+-   Approve Admin registrations
+-   Reject Admin registrations
+-   Enable or disable Admin accounts
+-   Permanently delete Admin accounts
+-   Review Admin password change requests
+-   Approve or reject password change requests
+-   Review Admin profile change requests
+-   Approve or reject important Admin profile changes
+-   Edit own profile directly
+-   Change or remove own profile photo
+-   Monitor department administration activities
 
-```text
-smart_notice_board/
-├── manage.py
-├── requirements.txt
-├── README.md
-├── LICENSE
-├── .gitignore
-├── .env.example
-├── config/
-│   ├── __init__.py
-│   ├── settings.py
-│   ├── urls.py
-│   ├── asgi.py
-│   └── wsgi.py
-├── accounts/
-│   ├── migrations/0001_initial.py
-│   ├── management/commands/create_hod.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── permissions.py
-│   ├── urls.py
-│   ├── views.py
-│   └── tests.py
-├── notices/
-│   ├── migrations/0001_initial.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── services.py
-│   ├── urls.py
-│   ├── views.py
-│   └── tests.py
-├── api/
-│   ├── apps.py
-│   ├── permissions.py
-│   ├── serializers.py
-│   ├── urls.py
-│   ├── views.py
-│   └── tests.py
-├── services/
-│   ├── __init__.py
-│   └── gsm_service.py
-├── templates/
-│   ├── base.html
-│   ├── registration/
-│   ├── dashboard/
-│   ├── hod/
-│   ├── notices/
-│   └── errors/
-├── static/
-│   ├── css/style.css
-│   ├── js/app.js
-│   └── images/
-└── tests/
-    └── __init__.py
-```
+Department Admin
 
-## 6. Installation
+Department Admins have access to the department management functions
+allowed by the HOD.
 
-### Windows
+Main capabilities:
 
-```powershell
+-   Login using registered email and password
+-   Access Admin dashboard
+-   Create and manage notices
+-   View current notices
+-   View notice history
+-   Request password changes
+-   Edit profile information
+-   Change or remove profile photo directly
+-   Request approval for important profile information changes
+-   View pending profile change request status
+
+------------------------------------------------------------------------
+
+Profile Management
+
+The system provides profile management for both HOD and Admin users.
+
+Profile photo is optional.
+
+A user can:
+
+-   Upload a profile photo during registration
+-   Change the profile photo later
+-   Remove the profile photo later
+
+Profile photo operations do not require HOD approval.
+
+For Department Admins, important identity information requires HOD
+approval.
+
+Examples include:
+
+-   Full Name
+-   Email Address
+-   Mobile Number
+-   Department
+
+The workflow is:
+
+Admin edits important information | v Profile Change Request | v HOD
+Dashboard | +————+ | | v v Approve Reject | | v v Data Updated No Change
+
+HOD can directly modify their own profile information.
+
+------------------------------------------------------------------------
+
+Password Change Workflow
+
+The system uses an approval-based password change workflow for
+Department Admins.
+
+Admin requests a new password | v Password Change Request | v HOD
+Dashboard | +————+ | | v v Approve Reject | | v v Password Updated
+Request Rejected
+
+The system does not depend on an email-based password reset for this
+workflow.
+
+------------------------------------------------------------------------
+
+Notice Management
+
+The notice management module allows authorized users to manage
+department notices from a centralized web interface.
+
+The system supports:
+
+-   Creating notices
+-   Viewing notices
+-   Managing active notices
+-   Tracking expired notices
+-   Viewing notice history
+-   Displaying the current notice
+-   Managing notice status
+-   Showing recent notices
+
+The architecture can later be connected to a physical P10 LED notice
+board.
+
+------------------------------------------------------------------------
+
+IoT and Hardware Integration
+
+The project is designed to support an IoT-based smart notice board.
+
+Proposed hardware:
+
+-   ESP32
+-   SIM800L GSM module
+-   P10 LED display panels
+-   Suitable power supply
+-   Connecting wires and required interface components
+
+Basic architecture:
+
+Django Server | | Local Network / API | v ESP32 Controller | +——————+ |
+| v v P10 Display SIM800L GSM Panels Module
+
+The Django application acts as the central management server, while
+ESP32 can work as the hardware controller.
+
+Multiple P10 display panels can be connected to create a larger display
+area.
+
+------------------------------------------------------------------------
+
+System Architecture
+
+Users | +———————+ | | v v HOD / Admin Students / Staff | v Django Web
+Application | +———————+ | | v v Authentication Notice Management | v
+Database | v ESP32 / IoT Integration | v P10 LED Display
+
+------------------------------------------------------------------------
+
+Technology Stack
+
+Backend
+
+-   Python
+-   Django 5.x
+-   Django Authentication
+-   Django ORM
+-   SQLite for development
+-   Waitress WSGI Server
+
+Frontend
+
+-   HTML5
+-   CSS3
+-   JavaScript
+-   Django Templates
+
+Hardware / IoT
+
+-   ESP32
+-   SIM800L
+-   P10 LED Display
+
+Development Tools
+
+-   Visual Studio Code
+-   Git
+-   GitHub
+-   Python Virtual Environment
+
+------------------------------------------------------------------------
+
+Project Structure
+
+smart_notice_board/ | +– accounts/ | +– models.py | +– views.py | +–
+forms.py | +– urls.py | +– … | +– api/ | +– … | +– config/ | +–
+settings.py | +– urls.py | +– wsgi.py | +– … | +– notices/ | +–
+models.py | +– views.py | +– services.py | +– … | +– services/ | +– … |
++– static/ | +– css/ | +– js/ | +– templates/ | +– accounts/ | +–
+dashboard/ | +– hod/ | +– notices/ | +– registration/ | +– media/ | +–
+tests/ | +– manage.py +– requirements.txt +– .env.example +– .gitignore
++– LICENSE +– README.md
+
+------------------------------------------------------------------------
+
+Installation
+
+1. Clone the repository
+
+git clone https://github.com/Mukesh-Pawar/Smart-Notice-Board.git
+
+2. Open the project directory
+
+cd Smart-Notice-Board
+
+3. Create a virtual environment
+
 python -m venv venv
-venv\Scripts\activate
+
+4. Activate the virtual environment
+
+Windows PowerShell:
+
+venv.ps1
+
+Windows CMD:
+
+venv
+
+5. Install dependencies
+
 pip install -r requirements.txt
-```
 
-### Linux / macOS
+6. Apply database migrations
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-Copy `.env.example` to `.env` and change `SECRET_KEY` before using the application beyond a local demo.
-
-```text
-SECRET_KEY=your-long-random-secret
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-```
-
-## 7. Database Setup
-
-SQLite is used automatically.
-
-```bash
-python manage.py makemigrations
 python manage.py migrate
-```
 
-The repository already includes initial migrations, so a clean clone can normally use `migrate` directly.
+7. Create the HOD / Super Admin account
 
-## 8. HOD / Super Admin Setup
-
-Recommended project-specific setup:
-
-```bash
-python manage.py create_hod --email hod@example.com --name "Department HOD" --department "E&TC"
-```
-
-The command prompts for the password securely when `--password` is not supplied.
-
-You can also use Django's standard command:
-
-```bash
 python manage.py createsuperuser
-```
 
-The custom user manager automatically assigns a superuser the HOD role and active status.
+8. Check the project
 
-No HOD password is hard-coded in source code.
+python manage.py check
 
-## 9. Run Development Server
+9. Run the development server
 
-```bash
 python manage.py runserver
-```
-
-Open the displayed local server address in a browser.
-
-Important pages:
-
-- `/login/` — login
-- `/register/` — Department Admin registration
-- `/dashboard/` — role-specific dashboard
-- `/notices/` — notice history
-- `/notices/current-notice/` — current board notice
-- `/admin/` — Django admin
-
-## 10. Authentication Flow
-
-```text
-Registration
-     |
-     v
-PENDING
-     |
-     +---- HOD Rejects ----> REJECTED (cannot login)
-     |
-     +---- HOD Approves ---> ACTIVE
-                                |
-                                v
-                              LOGIN
-                                |
-                                v
-                         Admin Dashboard
-```
 
-HOD can later disable an active admin. Disabled accounts cannot authenticate successfully.
-
-## 11. Notice Lifecycle
-
-```text
-Create Notice
-     |
-     +---- Start time in future ----> SCHEDULED
-     |
-     +---- Start time now ----------> ACTIVE
-                                        |
-                                        v
-                                    EXPIRED
-
-Any active/scheduled notice may also be CANCELLED by an authorized user.
-```
-
-The backend calculates expiry using:
-
-```text
-expiry_time = start_time + duration_minutes
-```
-
-The frontend never gets authority to override the calculated expiry time.
+Open the application in a browser:
 
-## 12. REST API
-
-All protected API endpoints use DRF Token Authentication or an authenticated Django session.
+http://127.0.0.1:8000/
 
-### Obtain API token
+------------------------------------------------------------------------
 
-```http
-POST /api/auth/login/
-Content-Type: application/json
+LAN Deployment
 
-{
-  "email": "admin@example.com",
-  "password": "your-password"
-}
-```
+The Django application can be accessed from other devices connected to
+the same local network.
 
-Response includes a token for an active user.
+For example, if the department server computer has the IP address:
 
-Send it to protected endpoints:
+192.168.1.100
 
-```http
-Authorization: Token YOUR_TOKEN
-```
+the application can be accessed from another computer or mobile device
+using:
 
-### Current notice
+http://192.168.1.100:8000/
 
-```http
-GET /api/notices/current/
-```
+The server computer and client device must be connected to the same
+network.
 
-Response shape:
+For a more stable WSGI server, Waitress can be used:
 
-```json
-{
-  "success": true,
-  "notice": {
-    "id": 12,
-    "title": "Practical Examination",
-    "message": "E&TC practical examination will be conducted tomorrow at 10 AM.",
-    "priority": "IMPORTANT",
-    "start_time": "2026-08-19T09:00:00+05:30",
-    "expiry_time": "2026-08-20T09:00:00+05:30",
-    "status": "ACTIVE"
-  }
-}
-```
+python -m waitress –listen=0.0.0.0:8000 config.wsgi:application
 
-The current-notice endpoint intentionally exposes only the minimum board-facing notice fields.
+The department computer can therefore work as the local server while
+also being used for normal departmental tasks.
 
-### History
+------------------------------------------------------------------------
 
-```http
-GET /api/notices/history/
-GET /api/notices/history/?priority=IMPORTANT&status=EXPIRED
-```
+DHCP Reservation
 
-### Detail
+For LAN deployment, DHCP reservation can be configured in the router so
+that the server computer receives the same local IP address every time
+it connects to the network.
 
-```http
-GET /api/notices/<id>/
-```
+Example:
 
-### Create
+Server PC | v Router DHCP | v Reserved IP: 192.168.1.100
 
-```http
-POST /api/notices/create/
-Content-Type: application/json
-Authorization: Token YOUR_TOKEN
-```
+This makes local access easier because the server address remains
+stable.
 
-Example body:
+------------------------------------------------------------------------
 
-```json
-{
-  "title": "Practical Examination",
-  "message": "Practical examination will be conducted tomorrow at 10 AM.",
-  "priority": "IMPORTANT",
-  "start_time": "2026-08-19T09:00:00+05:30",
-  "duration": "24h"
-}
-```
+Security Considerations
 
-Custom duration uses:
+The project includes several Django security mechanisms and access
+controls.
 
-```json
-{
-  "duration": "custom",
-  "custom_duration_minutes": 90
-}
-```
+These include:
 
-### Update
+-   Password hashing
+-   Session authentication
+-   CSRF protection
+-   Role-based access control
+-   HOD-only management operations
+-   Admin account approval
+-   Protected dashboard views
+-   Allowed host configuration
+-   Environment-based configuration support
 
-```http
-PUT /api/notices/<id>/update/
-```
+Sensitive configuration such as secret keys, database credentials, and
+other private settings should not be committed to the public repository.
 
-### Delete / cancel
+The .env file should remain private.
 
-```http
-DELETE /api/notices/<id>/delete/
-```
+------------------------------------------------------------------------
 
-For history integrity, this API operation cancels the notice rather than silently destroying its lifecycle record.
+Database
 
-## 13. GSM Integration
+SQLite is currently suitable for local development and academic
+demonstration.
 
-The integration boundary is:
+For larger or production deployments, the project can be migrated to a
+database such as PostgreSQL.
 
-`services/gsm_service.py`
+------------------------------------------------------------------------
 
-Available functions include:
+Deployment
 
-- `format_notice_for_sms(notice)`
-- `send_sms(phone_number, message)`
-- `send_notice_via_gsm(notice)`
+The current architecture supports deployment on a department computer
+through a local network.
 
-By default GSM is disabled. The service logs a simulated transmission instead of accessing hardware.
+Possible deployment options include:
 
-Future SIM800L/SIM900 integration can implement serial communication inside this service boundary. The Django views and notice models should not need to know modem-specific commands.
+Local Server
 
-Example future environment configuration:
+Department PC | +– Django +– SQLite +– Waitress | +– LAN | +– HOD PC +–
+Admin PCs +– Mobile Devices +– ESP32
 
-```text
-GSM_ENABLED=True
-GSM_SERIAL_PORT=COM5
-GSM_BAUD_RATE=9600
-GSM_SIM_NUMBER=your-target-number
-```
+Cloud Deployment
 
-Do not commit real phone numbers, credentials or modem secrets if they are confidential.
+The project can also be adapted for cloud deployment using a suitable
+hosting platform and production database.
 
-## 14. Password Reset / Email
+Cloud deployment can provide remote access outside the department
+network.
 
-For local development, `.env.example` uses:
+------------------------------------------------------------------------
 
-```text
-EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
-```
+Future Scope
 
-The reset URL and email contents will be printed in the terminal.
+The project can be further extended with:
 
-For real SMTP, configure:
+-   Real-time ESP32 integration
+-   REST API based communication
+-   Multiple P10 display support
+-   GSM-based emergency notices
+-   Automatic notice scheduling
+-   Notice priority levels
+-   SMS notification
+-   Email notification
+-   Student notification system
+-   Mobile application
+-   PostgreSQL database
+-   Cloud deployment
+-   HTTPS / SSL
+-   Multiple department support
+-   Notice analytics
+-   Automatic server startup
+-   Hardware status monitoring
+-   Offline notice caching
+-   Remote monitoring of the LED display
 
-```text
-EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
-EMAIL_HOST=smtp.example.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=...
-EMAIL_HOST_PASSWORD=...
-EMAIL_USE_TLS=True
-DEFAULT_FROM_EMAIL=no-reply@example.com
-```
+------------------------------------------------------------------------
 
-Keep these values in `.env`, not in Git.
+Advantages
 
-## 15. Security Practices
+-   Reduces paper-based notice management
+-   Saves time for department staff
+-   Centralizes department notices
+-   Provides controlled administrative access
+-   Supports multiple Admin users
+-   Provides HOD supervision
+-   Allows access from computers and mobile devices on the same network
+-   Can be integrated with an IoT display
+-   Provides a foundation for future GSM communication
+-   Easy to extend for multiple departments
 
-- Passwords use Django's secure password hashing.
-- CSRF middleware protects web forms.
-- Authorization checks enforce HOD/Admin roles.
-- Pending/rejected/disabled accounts cannot access dashboards.
-- DRF protected endpoints require authentication.
-- Current-board API returns no user details.
-- ORM queries are used instead of concatenated SQL.
-- Django templates escape normal variable output by default.
-- Secret key, email credentials and deployment settings are environment-based.
-- Secure cookie/HSTS settings are enabled when `DEBUG=False`.
-- Production `DEBUG` should always be `False`.
-- `ALLOWED_HOSTS` is configurable.
+------------------------------------------------------------------------
 
-## 16. Testing
+Academic Project
 
-Run all tests:
+This project is developed as an engineering academic project to
+demonstrate the integration of:
 
-```bash
-python manage.py test
-```
+-   Web development
+-   Database management
+-   Authentication and authorization
+-   Network-based application deployment
+-   IoT concepts
+-   Embedded systems
+-   GSM communication
+-   Digital LED display technology
 
-Test coverage includes:
+------------------------------------------------------------------------
 
-- Registration creates a pending account
-- Pending login is rejected
-- Approved login works
-- Invalid credentials are rejected
-- HOD approval flow
-- Notice expiry calculation
-- Current notice selection
-- Expiry status transition
-- Notice creation/update
-- API authentication
-- Current notice API
-- Unauthorized API access
-- Pending API login rejection
+Developer
 
-## 17. Git / GitHub Workflow
+Electronics & Telecommunication Engineering Department
+Alard College of Engineering and Management,Pune
 
-```bash
-git init
-git add .
-git commit -m "Initial smart notice board project"
-git branch -M main
-git remote add origin YOUR_GITHUB_REPOSITORY_URL
-git push -u origin main
-```
+Smart Notice Board Project
 
-Before pushing, verify:
+GitHub: https://github.com/Mukesh-Pawar/Smart-Notice-Board
 
-```bash
-git status
-```
+------------------------------------------------------------------------
 
-`.env`, `db.sqlite3`, virtual environments, caches and secrets are excluded by `.gitignore`.
+License
 
-## 18. MySQL / PostgreSQL Migration
+This project is licensed under the MIT License.
 
-The application uses SQLite for zero-configuration development. For production, configure Django's `DATABASES['default']` with PostgreSQL or MySQL and keep credentials in environment variables.
+See the LICENSE file for complete license terms.
 
-A common production direction is PostgreSQL + Gunicorn + Nginx, with HTTPS and a managed database.
-
-## 19. Future Improvements
-
-- Real SIM800L/SIM900 serial adapter
-- P10 LED display protocol/driver
-- Hardware heartbeat and device registration
-- Notice acknowledgement / delivery status
-- Scheduled background jobs with Celery or Django-Q
-- Audit-log export
-- HOD dashboard analytics
-- Multi-department support with department-specific permissions
-- PostgreSQL production database
-- Redis caching for high-frequency board polling
-- Device API keys with rotation and expiry
-- Rate limiting and API throttling
-- Docker deployment
-
-## 20. Suggested Team Member Task Division
-
-| Member | Responsibility |
-|---|---|
-| Member 1 | Django backend, models, authentication and RBAC |
-| Member 2 | Frontend, Bootstrap UI, responsive design |
-| Member 3 | REST API, testing and security |
-| Member 4 | GSM/microcontroller/P10 hardware integration |
-| Member 5 | Documentation, deployment, testing and final presentation |
-
-For a smaller team, combine backend + API and frontend + documentation responsibilities.
-
-## 21. Engineering Project Demonstration Flow
-
-1. Create HOD using `create_hod`.
-2. Start the server.
-3. Register a new Department Admin.
-4. Show that the new account is pending and cannot log in.
-5. Log in as HOD.
-6. Approve the registration request.
-7. Log in as the approved Admin.
-8. Create an Important notice with a short duration.
-9. Open Current Notice and demonstrate the board-facing view.
-10. Call `/api/notices/current/` using a token.
-11. Show notice history and expiry state.
-12. Disable the admin from the HOD panel.
-13. Explain how `services/gsm_service.py` becomes the hardware integration boundary.
-
+Copyright (c) 2026 Smart Notice Board Project
