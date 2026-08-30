@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile | Smart Notice Board{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h1>My Profile</h1>
+        <p>Manage your profile photo and account information.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="panel-card profile-card">
+            {% if request.user.profile_photo %}
+                <img src="{{ request.user.profile_photo.url }}" alt="Profile Photo" class="profile-photo-large">
+            {% else %}
+                <div class="profile-placeholder-large">{{ request.user.full_name|first|upper }}</div>
+            {% endif %}
+
+            <h3 class="profile-name">{{ request.user.full_name }}</h3>
+            <p class="profile-email">{{ request.user.email }}</p>
+            <span class="status-badge active">{{ request.user.get_role_display }}</span>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="panel-card">
+            <div class="panel-header">
+                <div>
+                    <h3>Profile Photo</h3>
+                    <small class="text-muted">Photo changes are always immediate and do not need approval.</small>
+                </div>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_photo">
+
+                {% for error in photo_form.non_field_errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+
+                <div class="mb-3">
+                    <label class="form-label">Choose Profile Photo</label>
+                    {{ photo_form.profile_photo }}
+                    <div class="form-help">JPG, PNG or WebP · Maximum 2 MB</div>
+                    {% for error in photo_form.profile_photo.errors %}
+                        <div class="field-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-upload"></i> Save Photo
+                    </button>
+                </div>
+            </form>
+
+            {% if request.user.profile_photo %}
+                <form method="post" class="mt-2">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_photo">
+                    <button type="submit" class="btn btn-outline-danger" data-confirm="Delete your profile photo?">
+                        <i class="bi bi-trash"></i> Remove Photo
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        <div class="panel-card mt-4">
+            <div class="panel-header">
+                <div>
+                    <h3>Account Information</h3>
+                    {% if request.user.role == 'HOD' %}
+                        <small class="text-muted">As HOD, you can update these details directly.</small>
+                    {% else %}
+                        <small class="text-muted">Name, email, mobile and department changes require HOD approval.</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if pending_request %}
+                <div class="alert alert-warning">
+                    <strong>Approval pending.</strong> Your latest account-information change request is waiting for HOD review.
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_profile">
+
+                {% for error in profile_form.non_field_errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Full Name</label>
+                        {{ profile_form.full_name }}
+                        {% for error in profile_form.full_name.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        {{ profile_form.email }}
+                        {% for error in profile_form.email.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Mobile</label>
+                        {{ profile_form.mobile }}
+                        {% for error in profile_form.mobile.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Department</label>
+                        {{ profile_form.department }}
+                        {% for error in profile_form.department.errors %}<div class="field-error">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check2-circle"></i>
+                        {% if request.user.role == 'HOD' %}Save Changes{% else %}Send for HOD Approval{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel-card mt-4">
+            <div class="panel-header"><h3>Account Summary</h3></div>
+            <div class="detail-grid profile-details">
+                <div><span>Role</span><strong>{{ request.user.get_role_display }}</strong></div>
+                <div><span>Account Status</span><strong>{{ request.user.get_status_display }}</strong></div>
+                <div><span>Current Email</span><strong>{{ request.user.email }}</strong></div>
+                <div><span>Department</span><strong>{{ request.user.department|default:'Not specified' }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

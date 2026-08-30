@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>{{ page_title }}</h1><p>Set the notice schedule. Expiry time is calculated by the server.</p></div></div>
+<div class="row justify-content-center"><div class="col-xl-9"><div class="panel-card">
+<form method="post" novalidate>{% csrf_token %}
+{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+<div class="row g-3">
+<div class="col-12"><label class="form-label">Title</label>{{ form.title }}{% for e in form.title.errors %}<div class="field-error">{{ e }}</div>{% endfor %}</div>
+<div class="col-md-8"><label class="form-label">Message</label>{{ form.message }}{% for e in form.message.errors %}<div class="field-error">{{ e }}</div>{% endfor %}</div>
+<div class="col-md-4"><label class="form-label">Priority</label>{{ form.priority }}{% for e in form.priority.errors %}<div class="field-error">{{ e }}</div>{% endfor %}<div class="priority-help mt-3"><div><span class="dot normal"></span> Normal</div><div><span class="dot important"></span> Important</div><div><span class="dot emergency"></span> Emergency</div></div></div>
+<div class="col-md-6"><label class="form-label">Start Date &amp; Time</label>{{ form.start_time }}{% for e in form.start_time.errors %}<div class="field-error">{{ e }}</div>{% endfor %}</div>
+<div class="col-md-6"><label class="form-label">Display Duration</label>{{ form.duration }}{% for e in form.duration.errors %}<div class="field-error">{{ e }}</div>{% endfor %}</div>
+<div class="col-md-6" id="customDurationWrap"><label class="form-label">Custom duration (minutes)</label>{{ form.custom_duration_minutes }}{% for e in form.custom_duration_minutes.errors %}<div class="field-error">{{ e }}</div>{% endfor %}</div>
+</div>
+<div class="form-note mt-4"><i class="bi bi-shield-check"></i><span>The backend calculates expiry as <strong>start time + selected duration</strong>. Frontend expiry values cannot override server validation.</span></div>
+<div class="d-flex justify-content-end gap-2 mt-4"><a class="btn btn-light" href="{% url 'notices:history' %}">Cancel</a><button class="btn btn-primary px-4" type="submit">{{ submit_label }}</button></div>
+</form></div></div></div>
+{% endblock %}
+{% block extra_js %}<script>document.addEventListener('DOMContentLoaded', function(){const d=document.getElementById('id_duration'), w=document.getElementById('customDurationWrap'); function toggle(){w.style.display=d.value==='custom'?'block':'none';} toggle(); d.addEventListener('change',toggle);});</script>{% endblock %}
