@@ -1,6 +1,6 @@
 ## Copyright and Authorship Notice
 
-Copyright © 2026 [Your Full Name]. All rights reserved for my original contributions, subject to the project's existing license and the rights of other contributors.
+Copyright © 2026 Pawar Mukesh Nana. All rights reserved for my original contributions, subject to the project's existing license and the rights of other contributors.
 
 **Project:** Server-Based Smart Notice Board with REST API and IoT Display Integration
 
