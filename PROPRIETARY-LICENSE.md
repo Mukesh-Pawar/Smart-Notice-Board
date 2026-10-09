@@ -1,7 +1,7 @@
 # PROPRIETARY LICENSE AND COPYRIGHT NOTICE
 
 **Project:** Server-Based Smart Notice Board with REST API and IoT Display Integration  
-**Copyright © 2026 [Your Full Legal Name]**
+**Copyright © 2026 Pawar Mukesh Nana **
 
 ## 1. Copyright Ownership
 
@@ -29,7 +29,7 @@ Third-party components remain subject to their respective licenses. This documen
 
 Requests for additional permissions should be directed to the relevant copyright holder in writing.
 
-**Copyright Holder:** [Your Full Legal Name]  
+**Copyright Holder:** Pawar Mukesh Nana
 **Repository:** https://github.com/Mukesh-Pawar/Smart-Notice-Board
 
 This document is a general notice and is not a substitute for legal advice.
