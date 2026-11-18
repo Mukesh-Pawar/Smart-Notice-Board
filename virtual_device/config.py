@@ -5,7 +5,7 @@ API_URL = "http://127.0.0.1:8000/api/notices/current/"
 
 # DRF token authentication
 # Paste the token returned by /api/login/ after logging in.
-API_TOKEN = ""
+API_TOKEN = "30213dd841b74ec706872961ba6a2c5f9b9fbccd"
 
 # Polling interval in seconds
 POLL_INTERVAL = 2
